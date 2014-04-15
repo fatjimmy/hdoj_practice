@@ -1,27 +1,30 @@
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
 
 #define MAX 100001
+#define PRECISION 0.000001
 typedef struct node {
-	float x,y;
+	double x,y;
 } Node;
 Node point[MAX];
+Node tmp[MAX];
 int compx(const void * p1, const void *p2);
 int compy(const void * p1, const void *p2);
-float get_closet(int l, int r);
-float get_distance(Node p1, Node p2);
-float min(float a, float b);
+double get_closet(int l, int r);
+double get_distance(Node p1, Node p2);
+double min(double a, double b);
+double sqrt(double x);
+
 int main() {
 	int n;
-	float ans;
+	double ans;
 	int i;
 
 	scanf("%d", &n);
 	while (n != 0) {
 		memset(point, 0, MAX*sizeof(Node));
 		for (i = 0; i < n; i++) {
-			scanf("%f %f", &point[i].x, &point[i].y);
+			scanf("%lf %lf", &point[i].x, &point[i].y);
 		}
 		qsort(&point, n-1, sizeof(Node), compx);	
 		ans = get_closet(0, n-1);
@@ -51,11 +54,10 @@ int compy(const void * p1, const void *p2){
 	}
 }
 
-float get_closet(int l, int r){
+double get_closet(int l, int r){
 	int mid;
-	float dis;
+	double dis;
 	int len;
-	Node tmp[MAX];
 	int i,j;
 
 	if (l == r){
@@ -89,14 +91,32 @@ float get_closet(int l, int r){
 	return dis;
 }
 
-float get_distance(Node p1, Node p2){
-	return sqrtf((p1.x-p2.x)*(p1.x-p2.x) + (p1.y-p2.y)*(p1.y-p2.y))/2;
+double get_distance(Node p1, Node p2){
+	return sqrt((p1.x-p2.x)*(p1.x-p2.x) + (p1.y-p2.y)*(p1.y-p2.y))/2;
 }
 
-float min(float a, float b) {
+double min(double a, double b) {
 	if (a < b) {
 		return a;	
 	} else {
 		return b;
 	}
+}
+double sqrt(double x) {
+	double lo, hi, mid;
+	if (x == 0.0f){
+		return 0;	
+	}
+
+	lo = 1.0;
+  	hi = x;
+	while (hi - lo > PRECISION) {
+		mid = lo + (hi - lo)/2;
+		if (mid*mid - x > PRECISION) {
+			hi = mid;	
+		} else {
+			lo = mid;
+		}
+	}
+	return lo;
 }
