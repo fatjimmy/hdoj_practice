@@ -2,11 +2,12 @@
 #include <string.h>
 
 #define MAX 100001
-#define PRECISION 0.000001
+#define PRECISION 0.0001
 typedef struct node {
 	double x,y;
 } Node;
-Node point[MAX];
+Node pointx[MAX];
+Node pointy[MAX];
 Node tmp[MAX];
 int compx(const void * p1, const void *p2);
 int compy(const void * p1, const void *p2);
@@ -22,11 +23,14 @@ int main() {
 
 	scanf("%d", &n);
 	while (n != 0) {
-		memset(point, 0, MAX*sizeof(Node));
+		memset(pointx, 0, MAX*sizeof(Node));
 		for (i = 0; i < n; i++) {
-			scanf("%lf %lf", &point[i].x, &point[i].y);
+			scanf("%lf %lf", &pointx[i].x, &pointx[i].y);
+			pointy[i].x = pointx[i].x;
+			pointy[i].y = pointx[i].y;
 		}
-		qsort(&point, n-1, sizeof(Node), compx);	
+		qsort(&pointx, n-1, sizeof(Node), compx);	
+		qsort(&pointy, n-1, sizeof(Node), compy);	
 		ans = get_closet(0, n-1);
 		printf("%.2f\n", ans);
 		
@@ -56,7 +60,7 @@ int compy(const void * p1, const void *p2){
 
 double get_closet(int l, int r){
 	int mid;
-	double dis;
+	double dis, dis_tmp;
 	int len;
 	int i,j;
 
@@ -64,10 +68,11 @@ double get_closet(int l, int r){
 		return 10000000;
 	}
 	if (r == l+1) {
-		return get_distance(point[l], point[r]);
+		return get_distance(pointx[l], pointx[r]);
 	}
 	if (r == l+2){
-		return min(get_distance(point[l], point[l+1]),min(get_distance(point[l+1], point[l+2]), get_distance(point[l], point[l+2])));
+		return min(get_distance(pointx[l], pointx[l+1]),min(get_distance(pointx[l+1], pointx[l+2]), 
+		get_distance(pointx[l], pointx[l+2])));
 	}
 	
 	mid = (l+r) >> 1;
@@ -75,16 +80,17 @@ double get_closet(int l, int r){
 	
 	len = 0;
 	for (i = l; i <= r; i++) {
-		if ((point[i].x >= (point[mid].x-dis))	&& (point[i].x <= (point[mid].x+dis))) {
-			tmp[len++] = point[i];	
+		if ((pointy[i].x >= (pointy[mid].x-dis))	&& (pointy[i].x <= (pointy[mid].x+dis))) {
+			tmp[len++] = pointy[i];	
 		}
 	}
-	qsort(&tmp, len-1, sizeof(Node), compy);	
+
 	for (i = 0; i < len-1; i++) {
 		for (j = i+1; j < len; j++) 
 			if (tmp[j].y <= tmp[i].y + dis){
-				if (get_distance(tmp[i], tmp[j]) < dis) {
-					dis = get_distance(tmp[i], tmp[j]);
+				dis_tmp = get_distance(tmp[i], tmp[j]);
+				if (dis_tmp < dis) {
+					dis = dis_tmp;
 				}
 			}
 	}
