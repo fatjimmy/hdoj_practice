@@ -2,30 +2,30 @@
 #include <string.h>
 
 #define MAX 100001
-#define PRECISION 0.0001
+#define SQRT_MAGIC_F 0x5f3759df
 typedef struct node {
-	double x,y;
+	float x,y;
 } Node;
 Node pointx[MAX];
 Node pointy[MAX];
 Node tmp[MAX];
 int compx(const void * p1, const void *p2);
 int compy(const void * p1, const void *p2);
-double get_closet(int l, int r);
-double get_distance(Node p1, Node p2);
-double min(double a, double b);
-double sqrt(double x);
+float get_closet(int l, int r);
+float get_distance(Node p1, Node p2);
+float min(float a, float b);
+float _sqrt(float x);
 
 int main() {
 	int n;
-	double ans;
+	float ans;
 	int i;
 
 	scanf("%d", &n);
 	while (n != 0) {
 		memset(pointx, 0, MAX*sizeof(Node));
 		for (i = 0; i < n; i++) {
-			scanf("%lf %lf", &pointx[i].x, &pointx[i].y);
+			scanf("%f %f", &pointx[i].x, &pointx[i].y);
 			pointy[i].x = pointx[i].x;
 			pointy[i].y = pointx[i].y;
 		}
@@ -40,27 +40,23 @@ int main() {
 }
 
 int compx(const void * p1, const void *p2){
-	if ( (*(Node*)p1).x < (*(Node*)p2).x ) {
+	if ( ((Node*)p1)->x < ((Node*)p2)->x ) {
 		return -1;
-	} else if ( (*(Node*)p1).x == (*(Node*)p2).x ) {
-		return 0;
 	} else {
 		return 1;	
 	}
 }
 int compy(const void * p1, const void *p2){
-	if ( (*(Node*)p1).y < (*(Node*)p2).y ) {
+	if ( ((Node*)p1)->y < ((Node*)p2)->y ) {
 		return -1;
-	} else if ( (*(Node*)p1).y == (*(Node*)p2).y ) {
-		return 0;
 	} else {
 		return 1;	
 	}
 }
 
-double get_closet(int l, int r){
+float get_closet(int l, int r){
 	int mid;
-	double dis, dis_tmp;
+	float dis, dis_tmp;
 	int len;
 	int i,j;
 
@@ -97,32 +93,27 @@ double get_closet(int l, int r){
 	return dis;
 }
 
-double get_distance(Node p1, Node p2){
-	return sqrt((p1.x-p2.x)*(p1.x-p2.x) + (p1.y-p2.y)*(p1.y-p2.y))/2;
+float get_distance(Node p1, Node p2){
+	return _sqrt((p1.x-p2.x)*(p1.x-p2.x) + (p1.y-p2.y)*(p1.y-p2.y))/2;
 }
 
-double min(double a, double b) {
+float min(float a, float b) {
 	if (a < b) {
 		return a;	
 	} else {
 		return b;
 	}
 }
-double sqrt(double x) {
-	double lo, hi, mid;
-	if (x == 0.0f){
-		return 0;	
-	}
-
-	lo = 1.0;
-  	hi = x;
-	while (hi - lo > PRECISION) {
-		mid = lo + (hi - lo)/2;
-		if (mid*mid - x > PRECISION) {
-			hi = mid;	
-		} else {
-			lo = mid;
-		}
-	}
-	return lo;
+float _sqrt(float x){
+	const float xhalf = 0.5f*x;
+	union{
+		float x;
+		int i;
+	}u;
+	u.x = x;
+	u.i = SQRT_MAGIC_F - (u.i >> 1);
+	u.x = u.x*(1.5f - xhalf*u.x*u.x);
+	u.x = u.x*(1.5f - xhalf*u.x*u.x);
+	u.x = u.x*(1.5f - xhalf*u.x*u.x);
+	return x*u.x;
 }
